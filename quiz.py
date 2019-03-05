@@ -14,7 +14,7 @@ from string import maketrans
 url = "http://faculty.etsu.edu/SMITHBJ/s2019/qs/practice_quiz"
 
 if len(sys.argv) < 2:
-	print "Usage: python quiz.py <quizNumber>"
+	print "Usage: python quiz.py <quizNumber> <s/f>"
 	sys.exit(1)
 
 if re.match("^[0-9]+",sys.argv[1]):
@@ -22,7 +22,7 @@ if re.match("^[0-9]+",sys.argv[1]):
 	quizNo = str(sys.argv[1])
 	url += quizNo+".html"
 else:
-	print "Usage: python quiz.py <quizNumber>"
+	print "Usage: python quiz.py <quizNumber> <s/f>"
 	sys.exit(1)
 
 shortQuiz = True
@@ -61,25 +61,29 @@ while(True): #loop to read until we get to the first question
 		question += line #prime the first iteration of the next loop
 		break
 
+qlines = 0
 while(True): #loop to read questions
 	line = quizIn.readline().lstrip()
 	if len(line) == 0:
 		continue
 	if re.match('([0-9]+[a-z], )+',line) or re.match('^Answers',line): #if we have a match, we've hit the answer portion
+		print line
 		questions.append(question)
 		break
-	if re.match('^[0-9]+\.',line):#check to see if were at the start of the next quesiton
+	if re.match('^[0-9]+\.',line) and qlines > 2:#check to see if were at the start of the next quesiton
 		questions.append(question)
+		qlines = 0
 		question = line
 	else:
-		question += line
-	
+		qlines += 1
+		question += line	
 
 
 
 trantab = maketrans(".",",") #some question pools have typos where a period saperates answers rather than a comma
 if re.match('^Answers',line):
 	line = line[8:].lstrip()
+print line
 ans = line.split(',')
 while(len(answers) < len(questions)):
 	for a in ans:
